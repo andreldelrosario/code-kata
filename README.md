@@ -1,2 +1,2 @@
-# code-kata
+# Code-Kata
 Coding practice
