@@ -1,0 +1,1 @@
+var sumArray = (array) => (array == null || array.length <= 1) ? 0 : array.sort((a, b) => a - b).reduce((sum, num) => sum += num, 0) - Math.min(...array) - Math.max(...array);
