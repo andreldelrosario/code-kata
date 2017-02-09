@@ -1,0 +1,1 @@
+var find_average = (array) => array.reduce((mean, val) => mean += val / array.length, 0);
