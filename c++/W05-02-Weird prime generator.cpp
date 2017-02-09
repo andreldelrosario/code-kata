@@ -1,5 +1,5 @@
 #include <iostream>
-#include <algorithm>
+#include <set>
 #include <vector>
 
 template <class T>
@@ -18,12 +18,10 @@ class WeirdPrimeGen
 {
 private:
     static long long gcd(long long a, long long b);
-    static std::vector<long long> an(long long n);
-    static std::vector<long long> gn(long long n);
-    static std::vector<long long> p(long long n);
 public:
     static long long countOnes(long long n);
     static long long maxPn(long long n);
+    static std::vector<long double> anOver(long long n);
     static int anOverAverage(long long n);
 };
 
@@ -32,71 +30,100 @@ long long WeirdPrimeGen::gcd(long long a, long long b)
     return (b == 0) ? a : WeirdPrimeGen::gcd(b, a % b);
 }
 
-std::vector<long long> WeirdPrimeGen::an(long long n)
-{
-    std::vector<long long> an {7};
-    for (int i = 2; i <= n; ++i)
-    {
-        an.push_back(an[i-2] + WeirdPrimeGen::gcd(an[i-2], i));
-    }
-    return an;
-}
-
-std::vector<long long> WeirdPrimeGen::gn(long long n)
-{
-    std::vector<long long> an = WeirdPrimeGen::an(n);
-    std::vector<long long> gn {1};
-    for (int i = 1; i < n; ++i)
-    {
-        gn.push_back(an[i] - an[i-1]);
-    }
-    return gn;
-}
-
-std::vector<long long> WeirdPrimeGen::p(long long n)
-{
-    std::vector<long long> p {};
-    long long i = 1;
-    auto gn = WeirdPrimeGen::gn(1000000);
-
-    while (p.size() != n)
-    {
-        auto end = std::remove_if(gn.begin(), gn.end(), [&](long long num){return num == i;});
-        gn.erase(end);
-        i = *gn.begin();
-        p.push_back(i);
-    }
-
-    return p;
-}
-
 long long WeirdPrimeGen::countOnes(long long n)
 {
-    auto g = WeirdPrimeGen::gn(n);
-    return std::count_if(g.begin(), g.end(), [](int i){return i == 1;});
-}
+    long long a = 7;
+    long long count = 1;
 
+    for (long long i = 2; i <= n; ++i)
+    {
+        long long ai = a + gcd(a, i);
+        long long g = ai - a;
+        a = ai;
+
+        if (g == 1)
+        {
+            ++count;
+        }
+    }
+
+    return count;
+}
 
 long long WeirdPrimeGen::maxPn(long long n)
 {
-      std::vector<long long> p = WeirdPrimeGen::p(n);
-    return *std::max_element(p.begin(), p.end());
+    long long max = -1;
+    long long a = 7;
+    long long i = 2;
+    long long count = 0;
+    std::set<long long> p {};
+
+    while (count < n)
+    {
+        long long ai = a + gcd(a, i++);
+        long long g = ai - a;
+
+        if (g != 1 && p.end() == p.find(g))
+        {
+            p.insert(g);
+            max = (max < g) ? g : max;
+            ++count;
+        }
+        a = ai;
+    }
+
+    return max;
+}
+
+std::vector<long double> WeirdPrimeGen::anOver(long long n)
+{
+    std::vector<long double> anOver;
+    // for (long long i = 0; i < n; ++i)
+    //     anOver.push_back(3);
+    // or
+
+    long long max = -1;
+    long long a = 7;
+    long double i = 2;
+    long long count = 0;
+
+    while (count < n)
+    {
+        long double ai = a + gcd(a, i);
+        long long g = ai - a;
+
+        if (g != 1)
+        {
+            anOver.push_back(ai / i);
+            ++count;
+        }
+        a = ai;
+        ++i;
+    }
+
+    return anOver;
 }
 
 int WeirdPrimeGen::anOverAverage(long long n)
 {
-    return 3;
+    // return 3;
+    // or
+    auto anOver = WeirdPrimeGen::anOver(n);
+    long long sum = 0;
+    for (const long long& i : anOver)
+    {
+        sum += i;
+    }
+    return sum / n;
 }
 
-int main() {
-    // your code goes here
-    std::cout << WeirdPrimeGen::a(2) << std::endl;
-    std::cout << WeirdPrimeGen::gcd(7, 2) << std::endl;
-    std::cout << WeirdPrimeGen::an(10) << std::endl;
-    std::cout << WeirdPrimeGen::gn(10) << std::endl;
-    std::cout << WeirdPrimeGen::countOnes(10) << std::endl;
-    std::cout << WeirdPrimeGen::p(10) << std::endl;
-
+int main()
+{
+    int n = 15;
+    std::cout << WeirdPrimeGen::countOnes(n) << std::endl;
+    std::cout << WeirdPrimeGen::maxPn(n) << std::endl;
+    std::cout << WeirdPrimeGen::anOver(n) << std::endl;
+    std::cout << WeirdPrimeGen::anOverAverage(n) << std::endl;
 
     return 0;
 }
